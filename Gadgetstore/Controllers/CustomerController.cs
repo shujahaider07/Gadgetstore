@@ -1,20 +1,26 @@
-﻿using Entities;
+﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using DbContextForApplicationLayer;
+using Entities;
+using EntitiesViewModels;
+using Gadgetstore.BusinessInterface;
 using IRepository;
 using Microsoft.AspNetCore.Mvc;
-using AspNetCoreHero.ToastNotification.Abstractions;
-using EntitiesViewModels;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Gadgetstore.Controllers
 {
     public class CustomerController : Controller
     {
-        private readonly ICustomer _Customer;
+      //  private readonly ICustomerRepo _Customer;
+        private readonly ICustomer _CustomerBusiness;
+        private readonly ApplicationDbContext db;
         private readonly INotyfService _notyf;
 
-        public CustomerController(ICustomer _Customer, INotyfService _notyf)
+        public CustomerController(ApplicationDbContext db,ICustomer _CustomerBusiness, INotyfService _notyf)
         {
-            this._Customer = _Customer;
+            this._CustomerBusiness = _CustomerBusiness;
             this._notyf = _notyf;
+            this.db = db;
         }
 
 
@@ -22,7 +28,7 @@ namespace Gadgetstore.Controllers
         public async Task<IActionResult> ListCustomer()
         {
 
-            var list = await _Customer.ListCustomer();
+            var list = _CustomerBusiness.GetAllCustomer();
 
             return View(list);
 
@@ -32,8 +38,18 @@ namespace Gadgetstore.Controllers
         [HttpGet]
         public IActionResult AddCustomer()
         {
+            //Creating the List of SelectListItem, this list you can bind from the database.
+            List<SelectListItem> Gender = new()
+            {
+                new SelectListItem { Value = "1", Text = "Male" },
+                new SelectListItem { Value = "2", Text = "Female" },
+              
+            };
 
+            //assigning SelectListItem to view Bag
+            ViewBag.cities = Gender;
             return View();
+            
 
         }
 
@@ -42,10 +58,23 @@ namespace Gadgetstore.Controllers
         [HttpPost]
         public async Task<IActionResult> AddCustomer(CustomerVM e)
         {
+            try
+            {
+                _CustomerBusiness.AddCustomer(e);
 
-            await _Customer.AddCustomer(e);
-            _notyf.Success("Insert Successfull", 5);
-            return RedirectToAction("AddCustomer");
+                _notyf.Success("Insert Successfull", 5);
+                return RedirectToAction("ListCustomer");
+
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
+           
+
 
         }
 
@@ -56,7 +85,7 @@ namespace Gadgetstore.Controllers
         {
             if (ModelState.IsValid)
             {
-                 _Customer.EditCustomer(e);
+                _CustomerBusiness.UpdateCustomer(e);
 
             }
             _notyf.Success("Update Successfull", 5);
@@ -67,7 +96,7 @@ namespace Gadgetstore.Controllers
         [HttpGet]
         public async Task<ActionResult> UpdateCustomer(int id)
         {
-            Customer model = await _Customer.GetIdByCustomer(id);
+            Customer model = _CustomerBusiness.GetAllCustomerById(id);
             return View(model);
         }
 
@@ -79,25 +108,35 @@ namespace Gadgetstore.Controllers
         {
 
 
-            Customer pro = await _Customer.GetIdByCustomer(id);
-            return View(pro);
+            _CustomerBusiness.DeleteCustomer(id);
+            return View();
 
         }
-        [HttpPost, ActionName("Delete")]
-        public async Task<ActionResult> Delete(int id)
-        {
 
-            if (ModelState.IsValid)
+        [HttpPost, ActionName("Delete")]
+        public async Task<ActionResult> Delete(CustomerVM customer)
+        {
+            try
             {
-                Customer pro = await _Customer.GetIdByCustomer(id);
-                _Customer.deleteCustomer(id);
-                _notyf.Success("Delete Successfull", 5);
-                return RedirectToAction("Listproduct");
+                if (ModelState.IsValid)
+                {
+                    _CustomerBusiness.DeleteCustomer(customer.Id);
+                    //  _Customer.deleteCustomer();
+                    _notyf.Success("Delete Successfull", 5);
+
+
+                }
+
             }
-            else
+            catch (Exception)
             {
-                return RedirectToAction("Delete");
+
+                throw;
             }
+
+
+            return RedirectToAction("ListCustomer");
+
 
 
         }

@@ -1,12 +1,10 @@
-﻿using IRepository;
-using Microsoft.AspNetCore.Mvc;
-
-namespace Gadgetstore.Controllers
+﻿namespace Gadgetstore.Controllers
 {
     using AspNetCoreHero.ToastNotification.Abstractions;
     using DbContextForApplicationLayer;
     using Entities;
-
+    using global::Gadgetstore.BusinessInterface;
+    using IRepository;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -17,11 +15,12 @@ namespace Gadgetstore.Controllers
 
             private readonly INotyfService _notyf;
             private readonly ApplicationDbContext db;
-            private readonly IProductbusiness productbusiness;
+            //private readonly IProductRepo productRepo;
+           private readonly IproductBusiness productbusiness;
 
-            public ProductController(INotyfService _notyf, ApplicationDbContext db)
+            public ProductController(IproductBusiness productbusiness, INotyfService _notyf, ApplicationDbContext db)
             {
-                //this._product = _product;
+                this.productbusiness = productbusiness;
                 this._notyf = _notyf;
                 this.db = db;
             }
@@ -30,10 +29,11 @@ namespace Gadgetstore.Controllers
             public async Task<IActionResult> Listproduct()
             {
 
-                var list = await _product.ListProductsVm();
+                var list = productbusiness.GetAllProducts();
 
                 return View(list);
 
+                
             }
 
 
@@ -55,9 +55,10 @@ namespace Gadgetstore.Controllers
             [HttpPost]
             public async Task<IActionResult> Addproduct(Products e)
             {
-                await _product.AddProducts(e);
+                 productbusiness.AddProduct(e);
                 _notyf.Success("Insert Successfull", 5);
-                return RedirectToAction("Addproduct");
+                return RedirectToAction("Listproduct");
+                
 
             }
 
@@ -68,7 +69,7 @@ namespace Gadgetstore.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    _product.EditProducts(e);
+                    productbusiness.UpdateProduct(e);
 
                 }
                 _notyf.Success("Update Successfull", 5);
@@ -76,42 +77,42 @@ namespace Gadgetstore.Controllers
 
             }
 
-            [HttpGet]
-            public async Task<ActionResult> Updateproduct(int id)
-            {
-                Products model = await _product.GetIdByProducts(id);
-                return View(model);
-            }
+            //[HttpGet]
+            //public async Task<ActionResult> Updateproduct(int id)
+            //{
+            //    Products model = await productbusiness.EditProducts();
+            //    return View(model);
+            //}
 
 
 
 
-            [HttpGet]
-            public async Task<IActionResult> Delete(int id, bool? saveChangesError)
-            {
+            //[HttpGet]
+            //public async Task<IActionResult> Delete(int id, bool? saveChangesError)
+            //{
 
-                Products pro = await _product.GetIdByProducts(id);
-                return View(pro);
+            //    Products pro = await productbusiness.deleteProducts(id);
+            //    return View(pro);
 
-            }
-            [HttpPost, ActionName("Delete")]
-            public async Task<ActionResult> Delete(int id)
-            {
+            //}
+            //[HttpPost, ActionName("Delete")]
+            //public async Task<ActionResult> Delete(int id)
+            //{
 
-                if (ModelState.IsValid)
-                {
-                    Products pro = await _product.GetIdByProducts(id);
-                    _product.deleteProducts(id);
-                    _notyf.Success("Delete Successfull", 5);
-                    return RedirectToAction("Listproduct");
-                }
-                else
-                {
-                    return RedirectToAction("Delete");
-                }
+            //    if (ModelState.IsValid)
+            //    {
+            //        Products pro = await _product.GetIdByProducts(id);
+            //        _product.deleteProducts(id);
+            //        _notyf.Success("Delete Successfull", 5);
+            //        return RedirectToAction("Listproduct");
+            //    }
+            //    else
+            //    {
+            //        return RedirectToAction("Delete");
+            //    }
 
 
-            }
+            //}
 
 
 

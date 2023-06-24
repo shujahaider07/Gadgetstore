@@ -22,7 +22,6 @@ namespace EntitiesViewModels
         public string? Email { get; set; }
 
 
-
         public Customer vmToEntity(CustomerVM customer)
         {
             return new Customer
@@ -37,6 +36,8 @@ namespace EntitiesViewModels
             };
 
         }
+
+
         
 
     }

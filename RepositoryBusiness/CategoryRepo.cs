@@ -1,7 +1,7 @@
 ﻿using DbContextForApplicationLayer;
 using Entities;
+using EntitiesViewModels;
 using IRepository;
-using Microsoft.EntityFrameworkCore;
 
 namespace RepositoryBusiness
 {
@@ -11,67 +11,87 @@ namespace RepositoryBusiness
 
         private readonly ApplicationDbContext _db;
 
-        public CategoryRepo(ApplicationDbContext _db )
+        public CategoryRepo(ApplicationDbContext _db)
         {
             this._db = _db;
         }
 
-        public async Task<Category> AddCategory(Category e)
+        public void AddCategory(CategoryVM e)
         {
             try
             {
+                _db.Categories.Add(new Category
+                {
 
-                Category cat = new Category();
-                cat.Category_Name = e.Category_Name;
-                cat.Category_Type = e.Category_Type;
-              
+                    Category_Name = e.Category_Name,
+                    Category_Type = e.Category_Type,
 
-
-                var add = _db.Categories.Add(cat);
+                });
                 _db.SaveChanges();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                ex.Message.ToString();
-            }
 
-            return e;
+                throw;
+            }
         }
 
         public void deleteCategory(int id)
         {
-            var del = _db.Categories.Find(id);
-            if (del != null)
+            try
             {
-                _db.Remove(del);
+                 _db.Categories.Find(id);
+            }
+            catch (Exception)
+            {
+
+                throw;
             }
         }
 
-        public async Task<IEnumerable<Category>> EditCategory(Category e)
+        public async Task<Category> EditCategory(Category e)
         {
-            var ID = _db.Categories.Where(x => x.Category_id == e.Category_id).AsEnumerable().FirstOrDefault();
-
-            if (ID != null)
+            Category category = new Category();
+            try
             {
-                ID.Category_Name = e.Category_Name;
-                ID.Category_Type = e.Category_Type;
-               
+               _db.Categories.Update(e);
+                _db.SaveChanges();
+            }
+            catch (Exception)
+            {
 
-                _db.Entry(ID).State = EntityState.Modified;
-                _db.SaveChangesAsync();
+                throw;
             }
 
-            return null;
+            return category;
         }
 
-        public async Task<Category> GetIdByCategory(int id)
+        public  Category GetIdByCategory(int id)
         {
-            return await _db.Categories.FindAsync(id);
+            try
+            {
+                 return _db.Categories.FirstOrDefault(x => x.Category_id == id);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
 
-        public async Task<IEnumerable<Category>> ListCategory()
+        public IEnumerable<Category> ListCategory()
         {
-            return _db.Categories.ToList();
+
+            try
+            {
+                return _db.Categories.OrderByDescending(x => x.Category_id).ToList();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            
         }
     }
 }

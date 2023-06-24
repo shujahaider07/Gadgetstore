@@ -2,11 +2,10 @@
 using Entities;
 using EntitiesViewModels;
 using IRepository;
-using Microsoft.EntityFrameworkCore;
 
 namespace RepositoryBusiness
 {
-    public class CustomerRepo : ICustomer
+    public class CustomerRepo : ICustomerRepo
     {
         private readonly ApplicationDbContext _db;
         public CustomerRepo(ApplicationDbContext db)
@@ -14,73 +13,82 @@ namespace RepositoryBusiness
             this._db = db;
         }
 
-        public async Task<Customer> AddCustomer(CustomerVM customerVM)
+        public void AddCustomer(CustomerVM customerVM)
         {
-            Customer c = new Customer();
 
-
-            _db.Customers.Add(new Customer
+            using (var ExceptionDb = _db.Database.BeginTransaction())
             {
-                First_Name = customerVM.First_Name,
-                Last_Name = customerVM.Last_Name,
-                Age = customerVM.Age,
-                contact = customerVM.contact,
-                gender = customerVM.gender,
-                Email = customerVM.Email,
+                try
+                {
+                    var add = _db.Customers.Add(new Customer
+                    {
+
+                        Age = customerVM.Age,
+                        contact = customerVM.contact,
+                        Email = customerVM.Email,
+                        First_Name = customerVM.First_Name,
+                        gender = customerVM.gender,
+                        Last_Name = customerVM.Last_Name,
+
+                    });
+                    _db.SaveChanges();
+
+                    ExceptionDb.CommitAsync();
+
+                }
 
 
-            });
+                catch (Exception)
+                {
+                    ExceptionDb.RollbackAsync();
+                    throw;
+                }
+
+
+            }
+        }
 
 
 
-                var add = _db.Customers.Add(c);
-                _db.SaveChanges();
 
+        public Customer CustomerGetById(int id)
+        {
+            try
+            {
+                return _db.Customers.Find(id);
+            }
+            catch (Exception)
+            {
 
-
-            return c;
+                throw;
+            }
 
         }
 
-        public void deleteCustomer(int id)
+        public void DeleteCustomer(int id)
         {
             var del = _db.Customers.Find(id);
-            if (del != null)
+            _db.Remove(del);
+        }
+
+        public IEnumerable<Customer> GetAllCustomers()
+        {
+            return _db.Customers.OrderByDescending(x => x.Id).ToList();
+        }
+
+        public void UpdateCustomer(Customer customer)
+        {
+            try
             {
-                _db.Remove(del);
+
+                _db.Customers.Update(customer);
+                _db.SaveChanges();
             }
-        }
-
-        public Task<IEnumerable<Customer>> EditCustomer(Customer e)
-        {
-            var ID = _db.Customers.Where(x => x.Id == e.Id).AsEnumerable().FirstOrDefault();
-
-            if (ID != null)
+            catch (Exception)
             {
-                ID.First_Name = e.First_Name;
-                ID.gender = e.gender;
-                ID.Last_Name = e.Last_Name;
-                
-                ID.Email = e.Email;
-                ID.contact = e.contact;
-                ID.Age = e.Age;
 
-
-                _db.Entry(ID).State = EntityState.Modified;
-                _db.SaveChangesAsync();
+                throw;
             }
-
-            return null;
-        }
-
-        public async Task<Customer> GetIdByCustomer(int id)
-        {
-            return await _db.Customers.FindAsync(id);
-        }
-
-        public  async Task<IEnumerable<Customer>> ListCustomer()
-        {
-            return _db.Customers.ToList();
         }
     }
 }

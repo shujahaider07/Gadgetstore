@@ -13,76 +13,113 @@ namespace RepositoryBusiness
 {
     public class ProductRepo : IProductRepo
     {
-        private readonly ApplicationDbContext _db;
+        private readonly ApplicationDbContext _dbContext;
 
-        public ProductRepo(ApplicationDbContext _db)
+        public ProductRepo(ApplicationDbContext _dbContext)
         {
-            this._db = _db;
+            this._dbContext = _dbContext;
         }
-        public async Task<Products> AddProducts(Products e)
+
+        public void Add(Products product)
         {
             try
             {
-
-                Products pro = new Products();
-                
-                pro.Product_Name = e.Product_Name;
-                pro.Category_Id = e.Category_Id;
-               
-
-                var add = _db.product.Add(pro);
-                _db.SaveChanges();
+                _dbContext.product.Add(product);
+                _dbContext.SaveChanges();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                ex.Message.ToString();
+
+                throw;
             }
-
-            return e;
-
+            
         }
 
-        public void deleteProducts(int id)
+        public void Delete(int id)
         {
-            var del = _db.product.Find(id);
-            if (del != null)
+            var product = _dbContext.product.Find(id);
+            if (product != null)
             {
-                _db.Remove(del);
+                _dbContext.product.Remove(product);
+                _dbContext.SaveChanges();
             }
         }
 
-        public Task<IEnumerable<Products>> EditProducts(Products e)
+        public IEnumerable<productListVm> GetAll()
         {
-            var ID = _db.product.Where(x => x.ProductId == e.ProductId).AsEnumerable().FirstOrDefault();
-
-            if (ID != null)
+            try
             {
-                ID.Product_Name = e.Product_Name;
-                ID.Category_Id = e.Category_Id;
-                
+                List<productListVm> p1 = (from p in _dbContext.product
+                                          join c in _dbContext.Categories on p.Category_Id equals c.Category_id
+                                          select new productListVm
+                                          {
+                                              ProductId = p.ProductId,
+                                              Product_Name = p.Product_Name,
+                                              Category_Name = c.Category_Name
+                                          }).ToList();
 
-                _db.Entry(ID).State = EntityState.Modified;
-                _db.SaveChangesAsync();
+
+                return p1;
+
             }
+            catch (Exception)
+            {
 
-            return null;
+                throw;
+            }
+            
         }
 
-        public async Task<Products> GetIdByProducts(int id)
+        public Products GetById(int id)
         {
-            return await _db.product.FindAsync(id);
+            try
+            {
+                return _dbContext.product.Find(id);
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            
         }
 
-        public async Task<IEnumerable<Products>> ListProducts()
+        public void Update(Products product)
         {
-            return _db.product.ToList();
+            try
+            {
+                _dbContext.product.Update(product);
+                _dbContext.SaveChanges();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+          
         }
 
-        public async Task<IEnumerable<productListVm>> ListProductsVm()
-        {
-            return _db.ProductVM.FromSqlRaw($"exec sp_bindCategoryInproductTbl");
-        }
 
-       
+        //public List<productListVm> ListProductsVm()
+        //{
+
+        //    List<productListVm> p1 = (from p in _db.product
+        //                              join c in _db.Categories on p.Category_Id equals c.Category_id
+        //                              select new productListVm
+        //                              {
+        //                                  ProductId = p.ProductId,
+        //                                  Product_Name = p.Product_Name,
+        //                                  Category_Name = c.Category_Name
+        //                              }).ToList();
+
+
+        //    return p1;
+
+
+
+        //}
+
+
     }
 }

@@ -1,21 +1,30 @@
+using AspNetCoreHero.ToastNotification;
+using AspNetCoreHero.ToastNotification.Extensions;
 using DbContextForApplicationLayer;
+using Gadgetstore.BusinessInterface;
+using Gadgetstore.BusinessLayer;
 using IRepository;
 using Microsoft.EntityFrameworkCore;
 using RepositoryBusiness;
-using AspNetCoreHero.ToastNotification;
-using AspNetCoreHero.ToastNotification.Extensions;
-using Entities;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-builder.Services.AddScoped<ICustomer, CustomerRepo>();
+//REPOSITORY 
+builder.Services.AddScoped<ICustomerRepo, CustomerRepo>();
 builder.Services.AddScoped<IProductRepo, ProductRepo>();
 builder.Services.AddScoped<ICategory, CategoryRepo>();
 builder.Services.AddScoped<IDeliveries, DeliveriesRepo>();
 builder.Services.AddScoped<IShopping, ShoppingRepo>();
+
+
+//BUSINESS
+builder.Services.AddScoped<IproductBusiness, ProductBusiness>();
+builder.Services.AddScoped<ICustomer, CustomerBusiness>();
+builder.Services.AddScoped<IcategoryBusiness, Categorybusiness>();
+
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {

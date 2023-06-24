@@ -1,5 +1,7 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
 using Entities;
+using EntitiesViewModels;
+using Gadgetstore.BusinessInterface;
 using IRepository;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,13 +9,15 @@ namespace Gadgetstore.Controllers
 {
     public class CategoryController : Controller
     {
-        private readonly ICategory _category;
+       // private readonly ICategory _category;
+        private readonly IcategoryBusiness _categoryBusiness;
+
         private readonly INotyfService _notyf;
         // private readonly INotyfService _notyf;
 
-        public CategoryController(ICategory _category, INotyfService _notyf)
+        public CategoryController(IcategoryBusiness _categoryBusiness, INotyfService _notyf)
         {
-            this._category = _category;
+            this._categoryBusiness = _categoryBusiness;
             this._notyf = _notyf;
         }
 
@@ -22,7 +26,7 @@ namespace Gadgetstore.Controllers
         public async Task<IActionResult> ListCategory()
         {
 
-            var list = await _category.ListCategory();
+            var list =  _categoryBusiness.GetAllCategory();
 
             return View(list);
 
@@ -40,9 +44,9 @@ namespace Gadgetstore.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> AddCategory(Category e)
+        public async Task<IActionResult> AddCategory(CategoryVM e)
         {
-            await _category.AddCategory(e);
+             _categoryBusiness.AddCategory(e);
             _notyf.Success("Insert Successfull", 5);
             return RedirectToAction("AddCategory");
 
@@ -55,7 +59,7 @@ namespace Gadgetstore.Controllers
         {
             if (ModelState.IsValid)
             {
-                _category.EditCategory(e);
+                await _categoryBusiness.UpdateCategory(e);
 
             }
             _notyf.Success("Update Successfull", 5);
@@ -66,7 +70,7 @@ namespace Gadgetstore.Controllers
         [HttpGet]
         public async Task<ActionResult> UpdateCategory(int id)
         {
-            Category model = await _category.GetIdByCategory(id);
+            Category model =  _categoryBusiness.CategoryById(id);
             return View(model);
         }
 
@@ -74,11 +78,10 @@ namespace Gadgetstore.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> Delete(int id, bool? saveChangesError)
+        public IActionResult Delete(int id, bool? saveChangesError)
         {
 
-
-            Category pro = await _category.GetIdByCategory(id);
+            Category pro =  _categoryBusiness.CategoryById(id);
             return View(pro);
 
         }
@@ -88,8 +91,8 @@ namespace Gadgetstore.Controllers
 
             if (ModelState.IsValid)
             {
-                Category pro = await _category.GetIdByCategory(id);
-                _category.deleteCategory(id);
+                Category pro = _categoryBusiness.CategoryById(id);
+                _categoryBusiness.DeleteCategory(id);
                 _notyf.Success("Delete Successfull", 5);
                 return RedirectToAction("Listproduct");
             }

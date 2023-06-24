@@ -1,4 +1,5 @@
 ﻿using Entities;
+using EntitiesViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,10 +12,10 @@ namespace IRepository
     {
 
 
-        public Task<IEnumerable<Category>> ListCategory();
-        public Task<Category> AddCategory(Category e);
-        public Task<IEnumerable<Category>> EditCategory(Category e);
-        public Task<Category> GetIdByCategory(int id);
+        public IEnumerable<Category> ListCategory();
+        public void AddCategory(CategoryVM e);
+        public Task<Category> EditCategory(Category e);
+        public Category GetIdByCategory(int id);
 
         public void deleteCategory(int id);
     }
