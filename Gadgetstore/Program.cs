@@ -24,6 +24,7 @@ builder.Services.AddScoped<IShopping, ShoppingRepo>();
 builder.Services.AddScoped<IproductBusiness, ProductBusiness>();
 builder.Services.AddScoped<ICustomer, CustomerBusiness>();
 builder.Services.AddScoped<IcategoryBusiness, Categorybusiness>();
+builder.Services.AddScoped<IDeliveryBusiness, DeliveryBusiness>();
 
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>

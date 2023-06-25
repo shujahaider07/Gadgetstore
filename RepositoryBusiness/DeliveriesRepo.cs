@@ -3,11 +3,6 @@ using Entities;
 using EntitiesViewModels;
 using IRepository;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RepositoryBusiness
 {
@@ -21,69 +16,104 @@ namespace RepositoryBusiness
             this._db = _db;
         }
 
-
-
-        public async Task<Deliveries> AddDeliveries(Deliveries e)
+        public void AddDeliveries(DeliveryVM deliveryVM)
         {
             try
             {
+                _db.Delivery.Add(new Deliveries()
+                {
 
-                Deliveries del = new Deliveries();
-                del.Customer_id= e.Customer_id;
-                del.Date = DateTime.Now;
+                    Deliveries_id = deliveryVM.Deliveries_id,
+                    Customer_id = deliveryVM.Customer_id,
+                    Date = deliveryVM.Date,
 
-
-
-                var add = _db.Delivery.Add(del);
+                });
                 _db.SaveChanges();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                ex.Message.ToString();
-            }
 
-            return e;
+                throw;
+            }
         }
 
         public void deleteDeliveries(int id)
         {
-            var del = _db.Delivery.Find(id);
-            if (del != null)
+            try
             {
-                _db.Remove(del);
+                _db.Delivery.Find(id);
+            }
+            catch (Exception)
+            {
+
+                throw;
             }
         }
 
-        public Task<IEnumerable<Deliveries>> EditDeliveries(Deliveries e)
+        public void EditDeliveries(Deliveries e)
         {
-            var ID = _db.Delivery.Where(x => x.Deliveries_id == e.Deliveries_id).AsEnumerable().FirstOrDefault();
-
-            if (ID != null)
+            try
             {
-                ID.Customer_id = e.Customer_id;
-                ID.Date = DateTime.Now;
+                _db.Delivery.Update(e);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public Deliveries GetIdByDeliveries(int id)
+        {
+            try
+            {
+
+                return _db.Delivery.Find(id);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public IEnumerable<Deliveries> ListDeliveries()
+        {
+            try
+            {
+                return _db.Delivery.OrderByDescending(x => x.Customer_id).ToList();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public IEnumerable<DeliveryVM> ListDeliveriesVM()
+        {
+            try
+            {
+                List<DeliveryVM> p1 = (from d in _db.Delivery
+                                          join c in _db.Customers on d.Customer_id equals c.Id
+                                          select new DeliveryVM
+                                          {
+                                              Customer_Name = c.First_Name,
+                                              Deliveries_id = d.Deliveries_id,
 
 
-                _db.Entry(ID).State = EntityState.Modified;
-                _db.SaveChangesAsync();
+                                          }).ToList();
+
+
+                return p1;
+
+            }
+            catch (Exception)
+            {
+
+                throw;
             }
 
-            return null;
-        }
-
-        public async Task<Deliveries> GetIdByDeliveries(int id)
-        {
-            return await _db.Delivery.FindAsync(id);
-        }
-
-        public async Task<IEnumerable<Deliveries>> ListDeliveries()
-        {
-            return _db.Delivery.ToList();
-        }
-
-        public async Task<IEnumerable<CustomerNameVm>> ListDeliveriesVm()
-        {
-            return _db.CustomersNameVm.FromSqlRaw($"exec sp_CustomerNameInDelivery");
         }
     }
 }

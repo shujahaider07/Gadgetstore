@@ -6,11 +6,11 @@ namespace IRepository
     public interface IDeliveries
     {
 
-        public Task<IEnumerable<Deliveries>> ListDeliveries();
-        public Task<IEnumerable<CustomerNameVm>> ListDeliveriesVm();
-        public Task<Deliveries> AddDeliveries(Deliveries e);
-        public Task<IEnumerable<Deliveries>> EditDeliveries(Deliveries e);
-        public Task<Deliveries> GetIdByDeliveries(int id);
+        public IEnumerable<Deliveries> ListDeliveries();
+        public IEnumerable<DeliveryVM> ListDeliveriesVM();
+        public void AddDeliveries(DeliveryVM deliveryVM);
+        public void EditDeliveries(Deliveries e);
+        public Deliveries GetIdByDeliveries(int id);
 
         public void deleteDeliveries(int id);
 

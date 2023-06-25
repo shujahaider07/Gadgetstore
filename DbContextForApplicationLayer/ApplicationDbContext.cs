@@ -23,8 +23,8 @@ namespace DbContextForApplicationLayer
         //ViewModels
 
         public DbSet<productListVm> ProductVM { get; set; }
-        public DbSet<CustomerNameVm> CustomersNameVm { get; set; }
         public DbSet<ShoppingVm> ShoppingVms { get; set; }
+        public DbSet<DeliveryVM> DeliveryVm{ get; set; }
 
 
 
@@ -32,7 +32,7 @@ namespace DbContextForApplicationLayer
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<productListVm>(e => e.HasNoKey());
-            modelBuilder.Entity<CustomerNameVm>(e => e.HasNoKey());
+            modelBuilder.Entity<DeliveryVM>(e => e.HasNoKey());
             modelBuilder.Entity<ShoppingVm>(e => e.HasNoKey());
             modelBuilder.Entity<CustomerVM>(e => e.HasNoKey());
 

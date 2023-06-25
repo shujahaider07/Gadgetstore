@@ -1,26 +1,27 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
 using DbContextForApplicationLayer;
 using Entities;
-using IRepository;
+using EntitiesViewModels;
+using Gadgetstore.BusinessInterface;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using System.Diagnostics;
-using System.IO.Pipelines;
 
 namespace Gadgetstore.Controllers
 {
     public class DeliveryController : Controller
     {
-        private readonly IDeliveries _delivery;
+    //    private readonly IDeliveries _delivery;
         private readonly INotyfService _notyf;
         private readonly ApplicationDbContext _db;
+        private readonly IDeliveryBusiness deliveryBusiness;
 
 
-        public DeliveryController(IDeliveries _delivery, INotyfService _notyf, ApplicationDbContext _db)
+        public DeliveryController(IDeliveryBusiness deliveryBusiness, INotyfService _notyf, ApplicationDbContext _db)
         {
-            this._delivery = _delivery;
+            
             this._notyf = _notyf;
             this._db = _db;
+            this.deliveryBusiness = deliveryBusiness;
         }
 
 
@@ -28,7 +29,7 @@ namespace Gadgetstore.Controllers
         public async Task<IActionResult> ListDelivery()
         {
 
-            var list = await _delivery.ListDeliveriesVm();
+            var list = deliveryBusiness.GetAllDeliveryVM();
 
             return View(list);
 
@@ -40,7 +41,7 @@ namespace Gadgetstore.Controllers
         {
 
             List<Customer> customers = _db.Customers.Select(x => new Customer { Id = x.Id, First_Name = x.First_Name }).AsEnumerable().ToList();
-             ViewBag.CustomerName = new SelectList(customers,"Id","First_Name");
+            ViewBag.CustomerName = new SelectList(customers, "Id", "First_Name");
 
 
             return View();
@@ -50,9 +51,9 @@ namespace Gadgetstore.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> AddDelivery(Deliveries e)
+        public async Task<IActionResult> AddDelivery(DeliveryVM e)
         {
-            await _delivery.AddDeliveries(e);
+            deliveryBusiness.AddDelivery(e);
             _notyf.Success("Insert Successfull", 5);
             return RedirectToAction("AddDelivery");
 
@@ -65,7 +66,7 @@ namespace Gadgetstore.Controllers
         {
             if (ModelState.IsValid)
             {
-                _delivery.EditDeliveries(e);
+                deliveryBusiness.UpdateDelivery(e);
 
             }
             _notyf.Success("Update Successfull", 5);
@@ -74,9 +75,9 @@ namespace Gadgetstore.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult> UpdateCategory(int id)
+        public async Task<IActionResult> UpdateDelivery(int id)
         {
-            Deliveries model = await _delivery.GetIdByDeliveries(id);
+            Deliveries model = deliveryBusiness.DeliveryById(id);
             return View(model);
         }
 
@@ -84,12 +85,11 @@ namespace Gadgetstore.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> Delete(int id, bool? saveChangesError)
+        public IActionResult Delete(int id, bool? saveChangesError)
         {
-
-
-            Deliveries pro = await _delivery.GetIdByDeliveries(id);
-            return View(pro);
+            
+            deliveryBusiness.DeleteDelivery(id);
+            return View();
 
         }
         [HttpPost, ActionName("Delete")]
@@ -98,8 +98,8 @@ namespace Gadgetstore.Controllers
 
             if (ModelState.IsValid)
             {
-                Deliveries pro = await _delivery.GetIdByDeliveries(id);
-                _delivery.deleteDeliveries(id);
+                Deliveries pro = deliveryBusiness.DeliveryById(id);
+                deliveryBusiness.DeleteDelivery(id);
                 _notyf.Success("Delete Successfull", 5);
                 return RedirectToAction("ListDelivery");
             }
