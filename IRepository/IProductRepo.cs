@@ -5,11 +5,11 @@ namespace IRepository
 {
     public interface IProductRepo
     {
-        IEnumerable<productListVm> GetAll();
-        Products GetById(int id);
-        void Add(Products product);
-        void Update(Products product);
-        void Delete(int id);
+        public Task<IEnumerable<productListVm>> GetAll();
+        public Task<Products> GetById(int id);
+        public Task Add(Products product);
+        public Task Update(Products product);
+        public Task Delete(int id);
 
 
     }

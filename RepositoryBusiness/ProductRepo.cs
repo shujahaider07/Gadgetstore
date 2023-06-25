@@ -20,77 +20,77 @@ namespace RepositoryBusiness
             this._dbContext = _dbContext;
         }
 
-        public void Add(Products product)
+        public async Task Add(Products product)
         {
             try
             {
-                _dbContext.product.Add(product);
-                _dbContext.SaveChanges();
+                await _dbContext.product.AddAsync(product);
+                await _dbContext.SaveChangesAsync();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Console.WriteLine($"An error occurred while adding the product: {ex.Message}");
 
                 throw;
             }
             
         }
 
-        public void Delete(int id)
+        public async Task Delete(int id)
         {
-            var product = _dbContext.product.Find(id);
+            var product = await _dbContext.product.FindAsync(id);
             if (product != null)
             {
                 _dbContext.product.Remove(product);
-                _dbContext.SaveChanges();
+               
+               await _dbContext.SaveChangesAsync();
             }
         }
 
-        public IEnumerable<productListVm> GetAll()
+        public async Task<IEnumerable<productListVm>> GetAll()
         {
             try
             {
-                List<productListVm> p1 = (from p in _dbContext.product
-                                          join c in _dbContext.Categories on p.Category_Id equals c.Category_id
-                                          select new productListVm
-                                          {
-                                              ProductId = p.ProductId,
-                                              Product_Name = p.Product_Name,
-                                              Category_Name = c.Category_Name
-                                          }).ToList();
+                var productList = await(from p in _dbContext.product
+                                        join c in _dbContext.Categories on p.Category_Id equals c.Category_id
+                                        select new productListVm
+                                        {
+                                            ProductId = p.ProductId,
+                                            Product_Name = p.Product_Name,
+                                            Category_Name = c.Category_Name
+                                        }).OrderByDescending(x=>x.ProductId).ToListAsync();
 
+                return productList;
+            }
+            catch (Exception ex)
+            {
 
-                return p1;
+                Console.WriteLine($"An error occurred while retrieving all products: {ex.Message}");
+                throw;
+            }
+        }
 
+        public async Task<Products> GetById(int id)
+        {
+            try
+            {
+                return await _dbContext.product.FindAsync(id);
             }
             catch (Exception)
             {
 
                 throw;
             }
-            
+
+
         }
 
-        public Products GetById(int id)
+        public async Task Update(Products product)
         {
             try
             {
-                return _dbContext.product.Find(id);
-
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-            
-        }
-
-        public void Update(Products product)
-        {
-            try
-            {
-                _dbContext.product.Update(product);
-                _dbContext.SaveChanges();
+                  _dbContext.product.Update(product);
+                 await _dbContext.SaveChangesAsync();
             }
             catch (Exception)
             {
@@ -99,26 +99,6 @@ namespace RepositoryBusiness
             }
           
         }
-
-
-        //public List<productListVm> ListProductsVm()
-        //{
-
-        //    List<productListVm> p1 = (from p in _db.product
-        //                              join c in _db.Categories on p.Category_Id equals c.Category_id
-        //                              select new productListVm
-        //                              {
-        //                                  ProductId = p.ProductId,
-        //                                  Product_Name = p.Product_Name,
-        //                                  Category_Name = c.Category_Name
-        //                              }).ToList();
-
-
-        //    return p1;
-
-
-
-        //}
 
 
     }

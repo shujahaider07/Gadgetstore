@@ -12,9 +12,9 @@
 <table class="table table-bordered table-hover table-striped" id="Producttbl">
     <thead>
         <tr>
-            <th>
+            @*<th>
                 @Html.DisplayNameFor(model => model.ProductId)
-            </th>
+            </th>*@
             <th>
                 @Html.DisplayNameFor(model => model.Category_Name)
             </th>
@@ -27,9 +27,9 @@
     <tbody>
 @foreach (var item in Model) {
         <tr>
-            <td>
+          @*  <td>
                 @Html.DisplayFor(modelItem => item.ProductId)
-            </td>
+            </td>*@
 
             <td>
                     @Html.DisplayFor(modelItem => item.Category_Name)

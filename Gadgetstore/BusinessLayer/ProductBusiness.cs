@@ -7,37 +7,80 @@ namespace Gadgetstore.BusinessLayer
 {
     public class ProductBusiness : IproductBusiness
     {
-       
-        private readonly IProductRepo IProductRepo;
-       
-        public ProductBusiness(IProductRepo IProductRepo)
+
+
+        private readonly IProductRepo _productRepo;
+
+        public ProductBusiness(IProductRepo productRepo)
         {
-            this.IProductRepo = IProductRepo;
+            _productRepo = productRepo;
         }
 
-        public IEnumerable<productListVm> GetAllProducts()
+        public async Task<IEnumerable<productListVm>> GetAllProductsAsync()
         {
-            return IProductRepo.GetAll();
+            try
+            {
+                return await _productRepo.GetAll();
+            }
+            catch (Exception ex)
+            {
+                
+                Console.WriteLine($"An error occurred while getting all products: {ex.Message}");
+                throw; 
+            }
         }
 
-        public Products GetProductById(int id)
+        public async Task<Products> GetProductByIdAsync(int id)
         {
-            return IProductRepo.GetById(id);
+            try
+            {
+                return await _productRepo.GetById(id);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while getting product by ID: {ex.Message}");
+                throw;
+            }
         }
 
-        public void AddProduct(Products product)
+        public async Task AddProductAsync(Products product)
         {
-            IProductRepo.Add(product);
+            try
+            {
+                await _productRepo.Add(product);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while adding a product: {ex.Message}");
+                throw;
+            }
         }
 
-        public void UpdateProduct(Products product)
+        public async Task UpdateProductAsync(Products product)
         {
-            IProductRepo.Update(product);
+            try
+            {
+                await _productRepo.Update(product);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while updating a product: {ex.Message}");
+                throw;
+            }
         }
 
-        public void DeleteProduct(int id)
+        public async Task DeleteProductAsync(int id)
         {
-            IProductRepo.Delete(id);
+            try
+            {
+                await _productRepo.Delete(id);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while deleting a product: {ex.Message}");
+                throw;
+            }
         }
     }
+
 }

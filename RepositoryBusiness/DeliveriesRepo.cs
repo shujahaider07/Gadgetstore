@@ -41,7 +41,8 @@ namespace RepositoryBusiness
         {
             try
             {
-                _db.Delivery.Find(id);
+                var del = _db.Delivery.Find(id);
+                _db.Delivery.Remove(del);
             }
             catch (Exception)
             {
