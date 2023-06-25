@@ -5,10 +5,10 @@ namespace IRepository
 {
     public interface ICustomerRepo
     {
-        public void AddCustomer(CustomerVM customerVM);
-        public void UpdateCustomer(Customer customer);
-        public void DeleteCustomer(int id);
-        public Customer CustomerGetById(int id);
-        public IEnumerable<Customer> GetAllCustomers();
+        public Task AddCustomer(CustomerVM customerVM);
+        public Task UpdateCustomer(Customer customer);
+        public Task DeleteCustomer(int id);
+        public Task <Customer> CustomerGetById(int id);
+        public Task<IEnumerable<Customer>> GetAllCustomers();
     }
 }

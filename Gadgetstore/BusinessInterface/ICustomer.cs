@@ -5,11 +5,11 @@ namespace Gadgetstore.BusinessInterface
 {
     public interface ICustomer
     {
-        public void AddCustomer(CustomerVM customervm);
-        public void UpdateCustomer(Customer customer);
-        public void DeleteCustomer(int id);
-        public IEnumerable<Customer> GetAllCustomer();
-        public Customer GetAllCustomerById(int id);
+        public Task AddCustomer(CustomerVM customervm);
+        public Task UpdateCustomer(Customer customer);
+        public Task DeleteCustomer(int id);
+        public Task<IEnumerable<Customer>> GetAllCustomer();
+        public Task <Customer> GetAllCustomerById(int id);
 
     }
 }

@@ -3,7 +3,6 @@ using DbContextForApplicationLayer;
 using Entities;
 using EntitiesViewModels;
 using Gadgetstore.BusinessInterface;
-using IRepository;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -11,106 +10,133 @@ namespace Gadgetstore.Controllers
 {
     public class CustomerController : Controller
     {
-      //  private readonly ICustomerRepo _Customer;
+
         private readonly ICustomer _CustomerBusiness;
         private readonly ApplicationDbContext db;
         private readonly INotyfService _notyf;
+        private readonly ILogger<CustomerController> logger;
 
-        public CustomerController(ApplicationDbContext db,ICustomer _CustomerBusiness, INotyfService _notyf)
+
+
+        public CustomerController(ILogger<CustomerController> logger, ApplicationDbContext db, ICustomer _CustomerBusiness, INotyfService _notyf)
         {
             this._CustomerBusiness = _CustomerBusiness;
             this._notyf = _notyf;
             this.db = db;
+            this.logger = logger;
         }
-
 
         [HttpGet]
         public async Task<IActionResult> ListCustomer()
         {
-
-            var list = _CustomerBusiness.GetAllCustomer();
-
-            return View(list);
-
+            try
+            {
+                var list = await _CustomerBusiness.GetAllCustomer();
+                return View(list);
+            }
+            catch (Exception ex)
+            {
+                // Handle the exception
+                // Log the exception or display an error message
+                logger.LogError(ex.Message);
+                return View("Error");
+            }
         }
-
 
         [HttpGet]
         public IActionResult AddCustomer()
         {
-            //Creating the List of SelectListItem, this list you can bind from the database.
-            List<SelectListItem> Gender = new()
+            try
             {
-                new SelectListItem { Value = "1", Text = "Male" },
-                new SelectListItem { Value = "2", Text = "Female" },
-              
-            };
+                List<SelectListItem> Gender = new()
+        {
+            new SelectListItem { Value = "1", Text = "Male" },
+            new SelectListItem { Value = "2", Text = "Female" },
+        };
 
-            //assigning SelectListItem to view Bag
-            ViewBag.cities = Gender;
-            return View();
-            
-
+                ViewBag.cities = Gender;
+                return View();
+            }
+            catch (Exception ex)
+            {
+                // Handle the exception
+                // Log the exception or display an error message
+                logger.LogError(ex.Message);
+                return View("Error");
+            }
         }
-
-
 
         [HttpPost]
         public async Task<IActionResult> AddCustomer(CustomerVM e)
         {
             try
             {
-                _CustomerBusiness.AddCustomer(e);
-
-                _notyf.Success("Insert Successfull", 5);
+                await _CustomerBusiness.AddCustomer(e);
+                _notyf.Success("Insert Successful", 5);
                 return RedirectToAction("ListCustomer");
-
-
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                // Handle the exception
+                // Log the exception or display an error message
+                logger.LogError(ex.Message);
                 throw;
             }
-
-           
-
-
         }
-
-
 
         [HttpPost]
         public async Task<IActionResult> UpdateCustomer(Customer e)
         {
-            if (ModelState.IsValid)
+            try
             {
-                _CustomerBusiness.UpdateCustomer(e);
-
+                if (ModelState.IsValid)
+                {
+                    await _CustomerBusiness.UpdateCustomer(e);
+                }
+                _notyf.Success("Update Successful", 5);
+                return RedirectToAction("ListCustomer");
             }
-            _notyf.Success("Update Successfull", 5);
-            return RedirectToAction("ListCustomer");
-
+            catch (Exception ex)
+            {
+                // Handle the exception
+                // Log the exception or display an error message
+                logger.LogError(ex.Message);
+                throw;
+            }
         }
 
         [HttpGet]
         public async Task<ActionResult> UpdateCustomer(int id)
         {
-            Customer model = _CustomerBusiness.GetAllCustomerById(id);
-            return View(model);
+            try
+            {
+                Customer model = await _CustomerBusiness.GetAllCustomerById(id);
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                // Handle the exception
+                // Log the exception or display an error message
+                logger.LogError(ex.Message);
+                return View("Error");
+            }
         }
-
-
-
 
         [HttpGet]
         public async Task<IActionResult> Delete(int id, bool? saveChangesError)
         {
-
-
-            _CustomerBusiness.DeleteCustomer(id);
-            return View();
-
+            try
+            {
+                await _CustomerBusiness.DeleteCustomer(id);
+                return View();
+            }
+            catch (Exception ex)
+            {
+                // Handle the exception
+                // Log the exception or display an error message
+                logger.LogError(ex.Message);
+                return View("Error");
+            }
         }
 
         [HttpPost, ActionName("Delete")]
@@ -120,29 +146,20 @@ namespace Gadgetstore.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    _CustomerBusiness.DeleteCustomer(customer.Id);
-                    //  _Customer.deleteCustomer();
-                    _notyf.Success("Delete Successfull", 5);
-
-
+                    await _CustomerBusiness.DeleteCustomer(customer.Id);
+                    _notyf.Success("Delete Successful", 5);
                 }
-
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                // Handle the exception
+                // Log the exception or display an error message
+                logger.LogError(ex.Message);
                 throw;
             }
 
-
             return RedirectToAction("ListCustomer");
-
-
-
         }
-
-
-
 
     }
 }

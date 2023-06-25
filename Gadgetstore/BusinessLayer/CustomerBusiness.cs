@@ -2,7 +2,6 @@
 using EntitiesViewModels;
 using Gadgetstore.BusinessInterface;
 using IRepository;
-using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Gadgetstore.BusinessLayer
 {
@@ -14,13 +13,13 @@ namespace Gadgetstore.BusinessLayer
         {
             this._Customer = _Customer;
         }
-        public void AddCustomer(CustomerVM customer)
+        public async Task AddCustomer(CustomerVM customer)
         {
             try
             {
                
 
-                _Customer.AddCustomer(customer);
+              await _Customer.AddCustomer(customer);
             }
 
             catch (Exception)
@@ -30,11 +29,11 @@ namespace Gadgetstore.BusinessLayer
             }
         }
 
-        public void DeleteCustomer(int id)
+        public async Task DeleteCustomer(int id)
         {
             try
             {
-                _Customer.DeleteCustomer(id);
+                await _Customer.DeleteCustomer(id);
             }
             catch (Exception)
             {
@@ -43,11 +42,11 @@ namespace Gadgetstore.BusinessLayer
             }
         }
 
-        public IEnumerable<Customer> GetAllCustomer()
+        public async Task< IEnumerable<Customer>> GetAllCustomer()
         {
             try
             {
-              return  _Customer.GetAllCustomers();
+              return  await _Customer.GetAllCustomers();
             }
             catch (Exception)
             {
@@ -56,12 +55,12 @@ namespace Gadgetstore.BusinessLayer
             }
         }
 
-        public Customer GetAllCustomerById(int id)
+        public async Task <Customer> GetAllCustomerById(int id)
         {
             try
             {
 
-               return _Customer.CustomerGetById(id);
+               return await _Customer.CustomerGetById(id);
             }
             catch (Exception)
             {
@@ -70,11 +69,11 @@ namespace Gadgetstore.BusinessLayer
             }
         }
 
-        public void UpdateCustomer(Customer customer)
+        public async Task UpdateCustomer(Customer customer)
         {
             try
             {
-                _Customer.UpdateCustomer(customer);
+              await  _Customer.UpdateCustomer(customer);
             }
             catch (Exception)
             {

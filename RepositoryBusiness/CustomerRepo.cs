@@ -2,6 +2,7 @@
 using Entities;
 using EntitiesViewModels;
 using IRepository;
+using Microsoft.EntityFrameworkCore;
 
 namespace RepositoryBusiness
 {
@@ -13,14 +14,14 @@ namespace RepositoryBusiness
             this._db = db;
         }
 
-        public void AddCustomer(CustomerVM customerVM)
+        public async Task AddCustomer(CustomerVM customerVM)
         {
 
             using (var ExceptionDb = _db.Database.BeginTransaction())
             {
                 try
                 {
-                    var add = _db.Customers.Add(new Customer
+                    var add = await _db.Customers.AddAsync(new Customer
                     {
 
                         Age = customerVM.Age,
@@ -31,16 +32,17 @@ namespace RepositoryBusiness
                         Last_Name = customerVM.Last_Name,
 
                     });
-                    _db.SaveChanges();
 
-                    ExceptionDb.CommitAsync();
+                    await _db.SaveChangesAsync();
+
+                    await ExceptionDb.CommitAsync();
 
                 }
 
 
                 catch (Exception)
                 {
-                    ExceptionDb.RollbackAsync();
+                    await ExceptionDb.RollbackAsync();
                     throw;
                 }
 
@@ -51,11 +53,11 @@ namespace RepositoryBusiness
 
 
 
-        public Customer CustomerGetById(int id)
+        public async Task<Customer> CustomerGetById(int id)
         {
             try
             {
-                return _db.Customers.Find(id);
+                return await _db.Customers.FindAsync(id);
             }
             catch (Exception)
             {
@@ -65,30 +67,32 @@ namespace RepositoryBusiness
 
         }
 
-        public void DeleteCustomer(int id)
+        public async Task DeleteCustomer(int id)
         {
             var del = _db.Customers.Find(id);
             _db.Remove(del);
         }
 
-        public IEnumerable<Customer> GetAllCustomers()
-        {
-            return _db.Customers.OrderByDescending(x => x.Id).ToList();
-        }
 
-        public void UpdateCustomer(Customer customer)
+
+        public async Task UpdateCustomer(Customer customer)
         {
             try
             {
 
                 _db.Customers.Update(customer);
-                _db.SaveChanges();
+                await _db.SaveChangesAsync();
             }
             catch (Exception)
             {
 
                 throw;
             }
+        }
+
+        async Task<IEnumerable<Customer>> ICustomerRepo.GetAllCustomers()
+        {
+            return await _db.Customers.OrderByDescending(x => x.Id).ToListAsync();
         }
     }
 }
